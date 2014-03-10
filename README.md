@@ -10,7 +10,7 @@ Before you can get started with the API you'll have to register your application
 
 This library will handle the OAuth authorisation. To register your application you'll have to grant access to your application with your fitbit account. This can be done with the <a href="https://github.com/lenkaiser/gofitbit-client">gofitbit-client</a> repo.
 
-`
+```go
 func main() {
 	//Init config
 	config := &Config{
@@ -36,7 +36,8 @@ func main() {
 	client.getProfile()
 	client.getRecentActivities()
 }
-`
+```
+
 
 # Changelog
 - Version 0.1: 10 March 2014
