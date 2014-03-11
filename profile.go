@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
-	"os"
 )
 
 // Profile holds all the basic information about the user
@@ -51,7 +49,7 @@ func (c *Client) GetProfile() (*Profile, error) {
 
 	//Parse data
 	profileData := &Profile{}
-	err = json.NewDecoder(io.TeeReader(responseBody, os.Stdout)).Decode(profileData)
+	err = json.NewDecoder(responseBody).Decode(profileData)
 	if err != nil {
 		return nil, err
 	}
