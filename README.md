@@ -33,12 +33,14 @@ func main() {
 	fmt.Println("New client initialised")
 
 	//Call methods from client
-	client.getProfile()
-	client.getRecentActivities()
+	client.GetProfile()
+	client.GetRecentActivities()
 }
 ```
 
 # Changelog
+- Version 0.3: 11 March 2014
+ - Added support for activities
 - Version 0.2: 11 March 2014
  - Fixed to use persisten OAuth token
  - Added data retriever
