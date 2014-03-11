@@ -5,15 +5,14 @@ import (
 	"io"
 )
 
-func (c *Client) getData(requestURL string) (io.Reader, error) {
+func (c *Client) getData(requestURL string) (io.ReadCloser, error) {
 	//Check for consumer
-	if c.oc != nil {
+	if c.oc == nil {
 		return nil, errors.New("no consumer")
 	}
 
 	//Retrieve data from URL
-	response, err := c.oc.Get(requestURL, map[string]string{}, c.accessToken)
-	defer response.Body.Close()
+	response, err := c.oc.Get(c.api.apiURL+requestURL, map[string]string{}, c.accessToken)
 	if err != nil {
 		return nil, err
 	}

@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/mrjones/oauth"
 	"log"
 )
@@ -193,6 +194,19 @@ func main() {
 	fmt.Println("New client initialised")
 
 	//Call methods from client
-	client.getProfile()
-	// client.getRecentActivities()
+	profile, err := client.GetProfile()
+	if err == nil {
+		fmt.Println("Retrieved profile")
+		spew.Dump(profile)
+	} else {
+		log.Print(err)
+	}
+
+	// activities, err := client.GetRecentActivities()
+	// if err == nil {
+	// 	fmt.Println("Retrieved recent activities")
+	// 	spew.Dump(activities)
+	// } else {
+	// 	log.Print(err)
+	// }
 }
