@@ -19,7 +19,7 @@ func main() {
 	}
 
 	//Initialise FitbitAPI
-	fapi, err := NewAPI("761d7f0836484d81999bfc1b3bc9c3a0", "b47420b3554642599267b080ea7e2759", config)
+	fapi, err := NewAPI("--", "--", config)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -38,8 +38,11 @@ func main() {
 }
 ```
 
-
 # Changelog
+- Version 0.2: 11 March 2014
+ - Fixed to use persisten OAuth token
+ - Added data retriever
+ - Added Profile struct to retrieve basic profile data
 - Version 0.1: 10 March 2014
  - Initial commit
  - Partial support for activities and profile

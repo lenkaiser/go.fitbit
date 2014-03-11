@@ -91,25 +91,38 @@ func (api *Fitbit) NewClient() (*Client, error) {
 	oauthConsumer.Debug(api.config.Debug)
 
 	//Add to client
+	//TODO: Replace this with DB values
 	c.oc = oauthConsumer
-
-	//Get request tokenURL
-	requestToken, url, err := oauthConsumer.GetRequestTokenAndUrl("oob")
-	if err != nil {
-		return nil, err
+	c.accessToken = &oauth.AccessToken{
+		Token:  "cd7c9a14b886e46a3bb597a15ba32684",
+		Secret: "bf170c1442a005952c4747eb0146b149",
+		AdditionalData: map[string]string{
+			"encoded_user_id": "2DXGXY",
+		},
 	}
 
-	fmt.Println("(1) Go to: " + url)
-	fmt.Println("(2) Enter the verification code: ")
+	// //Get request tokenURL
+	// requestToken, url, err := oauthConsumer.GetRequestTokenAndUrl("oob")
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	verificationCode := ""
-	fmt.Scanln(&verificationCode)
+	// fmt.Println("(1) Go to: " + url)
+	// fmt.Println("(2) Enter the verification code: ")
 
-	accessToken, err := oauthConsumer.AuthorizeToken(requestToken, verificationCode)
-	if err != nil {
-		return nil, err
-	}
-	c.accessToken = accessToken
+	// verificationCode := ""
+	// fmt.Scanln(&verificationCode)
+
+	// accessToken, err := oauthConsumer.AuthorizeToken(requestToken, verificationCode)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// c.accessToken = accessToken
+	// c.userID = c.accessToken.AdditionalData["encoded_user_id"]
+
+	// log.Printf("accessToken >> %s\n", accessToken.Token)
+	// log.Printf("accessSecret >> %s\n", accessToken.Secret)
+	// log.Printf("userID >> %s\n", c.userID)
 
 	return c, nil
 }
@@ -181,5 +194,5 @@ func main() {
 
 	//Call methods from client
 	client.getProfile()
-	client.getRecentActivities()
+	// client.getRecentActivities()
 }
