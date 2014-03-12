@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
-	"os"
 	"time"
 )
 
@@ -74,23 +72,9 @@ func (c *Client) BrowseActivities() ([]*Activity, error) {
 	return nil, errors.New("not implemented yet")
 }
 
-// GetActivitiesByUnixTimestamp returns Activity struct
-// It accepts an time.Time format and translates it to the required format for the API
-func (c *Client) GetActivitiesByUnixTimestamp(date time.Time) (*Activities, error) {
-	//Convert timestamp to string
-	strDate := date.Format("2006-01-02")
-	return c.getActivities(strDate)
-}
-
-// GetActivitiesByString returns Activity struct
-// It accepts an string and forwards it to the API
-func (c *Client) GetActivitiesByString(date string) (*Activities, error) {
-	return c.getActivities(date)
-}
-
-func (c *Client) getActivities(date string) (*Activities, error) {
+func (c *Client) GetActivities(date time.Time) (*Activities, error) {
 	//Build and get request-URL
-	requestURL := fmt.Sprintf("user/-/activities/date/%s.json", date)
+	requestURL := fmt.Sprintf("user/-/activities/date/%s.json", date.Format("2006-01-02"))
 	responseBody, err := c.getData(requestURL)
 	if err != nil {
 		return nil, err
@@ -98,7 +82,7 @@ func (c *Client) getActivities(date string) (*Activities, error) {
 
 	//Parse data
 	activitiesData := &Activities{}
-	err = json.NewDecoder(io.TeeReader(responseBody, os.Stdout)).Decode(activitiesData)
+	err = json.NewDecoder(responseBody).Decode(activitiesData)
 	if err != nil {
 		return nil, err
 	}
@@ -111,15 +95,14 @@ type RecentActivities []*Activity
 // GetRecentActivities retrieves all the activities and returns an object array
 func (c *Client) GetRecentActivities() (RecentActivities, error) {
 	//Build and get request-URL
-	requestURL := fmt.Sprintf("user/-/activities/recent.json")
-	responseBody, err := c.getData(requestURL)
+	responseBody, err := c.getData("user/-/activities/recent.json")
 	if err != nil {
 		return nil, err
 	}
 
 	//Parse data
 	recentActivitiesData := RecentActivities{}
-	err = json.NewDecoder(io.TeeReader(responseBody, os.Stdout)).Decode(&recentActivitiesData)
+	err = json.NewDecoder(responseBody).Decode(&recentActivitiesData)
 	if err != nil {
 		return nil, err
 	}
@@ -132,15 +115,14 @@ type FrequentActivities []*Activity
 // GetFrequentActivities retrieves all the frequent activities of the provided userID
 func (c *Client) GetFrequentActivities() (FrequentActivities, error) {
 	//Build and get request-URL
-	requestURL := fmt.Sprintf("user/-/activities/frequent.json")
-	responseBody, err := c.getData(requestURL)
+	responseBody, err := c.getData("user/-/activities/frequent.json")
 	if err != nil {
 		return nil, err
 	}
 
 	//Parse data
 	frequentActivitiesData := FrequentActivities{}
-	err = json.NewDecoder(io.TeeReader(responseBody, os.Stdout)).Decode(&frequentActivitiesData)
+	err = json.NewDecoder(responseBody).Decode(&frequentActivitiesData)
 	if err != nil {
 		return nil, err
 	}
@@ -170,7 +152,7 @@ func (c *Client) GetFavoriteActivities() (FavoriteActivities, error) {
 
 	//Parse data
 	favoriteActivitiesData := FavoriteActivities{}
-	err = json.NewDecoder(io.TeeReader(responseBody, os.Stdout)).Decode(&favoriteActivitiesData)
+	err = json.NewDecoder(responseBody).Decode(&favoriteActivitiesData)
 	if err != nil {
 		return nil, err
 	}
@@ -180,12 +162,16 @@ func (c *Client) GetFavoriteActivities() (FavoriteActivities, error) {
 
 // LogActivity makes it possible to write an activity to the user's Fitbit account
 // It returns an error if one occours
-func (c *Client) LogActivity(date, startTime, activityName, distanceUnit string, activityId, duration, manualCalories uint64, distance float64) (*Activity, error) {
+// Date has to be specific is following format: 2006-02-25
+func (c *Client) LogActivity(date time.Time, activityName, distanceUnit string, activityId, duration, manualCalories uint64, distance float64) (*Activity, error) {
+	//Supported unit types
+	distanceUnitTypes := map[string]string{"Centimeter": "", "Foot": "", "Inch": "", "Kilometer": "", "Meter": "", "Mile": "", "Millimeter": "", "Steps": "", "Yards": ""}
+
 	//Build arguments map
 	dataArguments := map[string]string{
-		"startTime":      startTime,
+		"startTime":      date.Format("15:04"),
 		"durationMillis": duration,
-		"date":           date,
+		"date":           date.Format("2006-01-02"),
 	}
 
 	//Check parameters
@@ -207,7 +193,8 @@ func (c *Client) LogActivity(date, startTime, activityName, distanceUnit string,
 		dataArguments["distance"] = distance
 	}
 
-	if distanceUnit.length > 0 {
+	_, ok := distanceUnitTypes[distanceUnit]
+	if ok {
 		dataArguments["distanceUnit"] = distanceUnit
 	}
 
@@ -255,7 +242,7 @@ func (c *Client) AddFavoriteActivity(activityId uint64) error {
 // It returns an error if one occours
 func (c *Client) DeleteFavoriteActivity(activityId uint64) error {
 	requestURL := fmt.Sprintf("user/-/activities/favorite/%i.json", activityId)
-	_, err := c.deleteData(requestURL)
+	_, err := c.deleteData(requestURL, nil)
 	if err != nil {
 		return err
 	}
