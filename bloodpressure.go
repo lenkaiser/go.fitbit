@@ -26,7 +26,7 @@ type GetBloodpressure struct {
 // GetBloodpressure gets the bloodpressure of the user for a specific date
 // It returns an collection of Bloodpressure or an error if one occours
 // Date has to be specific is following format: 2006-02-25
-func (c *Client) GetBloodpressure(date time.Time) (*GetBloodpressure, error) {
+func (c *Client) GetBloodpressure(date time.Time) (GetBloodpressure, error) {
 	//Build and GET requestURL
 	requestURL := fmt.Sprintf("user/-/bp/date/%s.json", date.Format("2006-01-02"))
 	responseBody, err := c.getData(requestURL)
