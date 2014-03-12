@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/mrjones/oauth"
 	"log"
 )
@@ -192,5 +191,4 @@ func main() {
 		log.Fatal(err)
 	}
 	fmt.Println("New client initialised")
-
 }

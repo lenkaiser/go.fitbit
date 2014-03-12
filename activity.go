@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -10,17 +11,18 @@ import (
 
 // Activity holds all the basic information for a single measured activity
 type Activity struct {
-	ActivityId       uint64 `json:"activityId"`
-	ActivityParentId uint64 `json:"activityParentId"`
-	Calories         uint64 `json:"calories"`
-	Description      string `json:"description"`
-	Duration         uint64 `json:"duration"`
-	HasStartTime     bool   `json:"hasStartTime"`
-	IsFavorite       bool   `json:"isFavorite"`
-	LogId            uint64 `json:"logId"`
-	Name             string `json:"name"`
-	StartTime        string `json:"startTime"`
-	Steps            uint64 `json:"steps"`
+	ActivityId       uint64  `json:"activityId"`
+	ActivityParentId uint64  `json:"activityParentId"`
+	Calories         uint64  `json:"calories"`
+	Description      string  `json:"description"`
+	Duration         uint64  `json:"duration"`
+	Distance         float64 `json:"distance"`
+	HasStartTime     bool    `json:"hasStartTime"`
+	IsFavorite       bool    `json:"isFavorite"`
+	LogId            uint64  `json:"logId"`
+	Name             string  `json:"name"`
+	StartTime        string  `json:"startTime"`
+	Steps            uint64  `json:"steps"`
 }
 
 // Goal represents all data reached to a given date
@@ -58,6 +60,18 @@ type Activities struct {
 	activities []*Activity `json:"activities"`
 	goals      *Goal       `json:"goals"`
 	summary    *Summary    `json:"summary"`
+}
+
+// GetActivity uses the activityId to get the details of this specific activity
+// It returns an object containing all the details or an error if one occours
+func (c *Client) GetActivity(activityId uint64) (*Activity, error) {
+	return nil, errors.New("not implemented yet")
+}
+
+// BrowseActivites gets a collection of all the public and private activities of the user
+// It returns an collection of Activity or an error if on occours
+func (c *Client) BrowseActivities() ([]*Activity, error) {
+	return nil, errors.New("not implemented yet")
 }
 
 // GetActivitiesByUnixTimestamp returns Activity struct
@@ -149,8 +163,7 @@ type FavoriteActivities []*FavoriteActivity
 // It returns and object array of FavoriteActivity
 func (c *Client) GetFavoriteActivities() (FavoriteActivities, error) {
 	//Build and get request-URL
-	requestURL := fmt.Sprintf("user/-/activities/favorite.json")
-	responseBody, err := c.getData(requestURL)
+	responseBody, err := c.getData("user/-/activities/favorite.json")
 	if err != nil {
 		return nil, err
 	}
@@ -163,4 +176,89 @@ func (c *Client) GetFavoriteActivities() (FavoriteActivities, error) {
 	}
 
 	return favoriteActivitiesData, nil
+}
+
+// LogActivity makes it possible to write an activity to the user's Fitbit account
+// It returns an error if one occours
+func (c *Client) LogActivity(date, startTime, activityName, distanceUnit string, activityId, duration, manualCalories uint64, distance float64) (*Activity, error) {
+	//Build arguments map
+	dataArguments := map[string]string{
+		"startTime":      startTime,
+		"durationMillis": duration,
+		"date":           date,
+	}
+
+	//Check parameters
+	if activityId == 0 || activityName.length == 0 {
+		return nil, errors.New("missing paramters")
+	} else {
+		if activityId > 0 {
+			//Set activityId
+			dataArguments["activityId"] = activityId
+		}
+		if activityName.length > 0 {
+			//Set activityName
+			dataArguments["activityName"] = activityName
+			dataArguments["manualCalories"] = manualCalories
+		}
+	}
+
+	if distance > 0 {
+		dataArguments["distance"] = distance
+	}
+
+	if distanceUnit.length > 0 {
+		dataArguments["distanceUnit"] = distanceUnit
+	}
+
+	//Build an put request-URL
+	responseBody, err := c.postData("user/-/activities.json", dataArguments)
+	if err != nil {
+		return nil, err
+	}
+
+	//Parse data
+	logActivity := &Activity{}
+	err = json.NewDecoder(responseBody).Decode(logActivity)
+	if err != nil {
+		return nil, err
+	}
+
+	return logActivity, nil
+}
+
+// DeleteActivity makes it possible to remove an activity from the user's Fitbit account
+// It returns an error if one occours
+func (c *Client) DeleteActivity(activityId uint64) error {
+	requestURL := fmt.Sprintf("user/-/activities/%i.json", activityId)
+	_, err := c.deleteData(requestURL)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// AddFavoriteActivity uses the activityId to mark a specific activity as a favorite one for the user
+// It returns an error if one occours
+func (c *Client) AddFavoriteActivity(activityId uint64) error {
+	requestURL := fmt.Sprintf("user/-/activities/favorite/%i.json", activityId)
+	_, err := c.postData(requestURL)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// DeleteFavoriteActivity uses the activityId to remove a specific activity from the users favorite activities list
+// It returns an error if one occours
+func (c *Client) DeleteFavoriteActivity(activityId uint64) error {
+	requestURL := fmt.Sprintf("user/-/activities/favorite/%i.json", activityId)
+	_, err := c.deleteData(requestURL)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
