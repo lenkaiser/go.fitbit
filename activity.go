@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 )
 
@@ -170,27 +171,27 @@ func (c *Client) LogActivity(date time.Time, activityName, distanceUnit string, 
 	//Build arguments map
 	dataArguments := map[string]string{
 		"startTime":      date.Format("15:04"),
-		"durationMillis": duration,
+		"durationMillis": strconv.FormatUint(duration, 10),
 		"date":           date.Format("2006-01-02"),
 	}
 
 	//Check parameters
-	if activityId == 0 || activityName.length == 0 {
+	if activityId == 0 || len(activityName) == 0 {
 		return nil, errors.New("missing paramters")
 	} else {
 		if activityId > 0 {
 			//Set activityId
-			dataArguments["activityId"] = activityId
+			dataArguments["activityId"] = strconv.FormatUint(activityId, 10)
 		}
-		if activityName.length > 0 {
+		if len(activityName) > 0 {
 			//Set activityName
 			dataArguments["activityName"] = activityName
-			dataArguments["manualCalories"] = manualCalories
+			dataArguments["manualCalories"] = strconv.FormatUint(manualCalories, 10)
 		}
 	}
 
 	if distance > 0 {
-		dataArguments["distance"] = distance
+		dataArguments["distance"] = strconv.FormatFloat(distance, 'f', 2, 1) //TODO: Check if last parameter is correct (bitsize)
 	}
 
 	_, ok := distanceUnitTypes[distanceUnit]
@@ -218,7 +219,7 @@ func (c *Client) LogActivity(date time.Time, activityName, distanceUnit string, 
 // It returns an error if one occours
 func (c *Client) DeleteActivity(activityId uint64) error {
 	requestURL := fmt.Sprintf("user/-/activities/%i.json", activityId)
-	_, err := c.deleteData(requestURL)
+	_, err := c.deleteData(requestURL, map[string]string{})
 	if err != nil {
 		return err
 	}
@@ -230,7 +231,7 @@ func (c *Client) DeleteActivity(activityId uint64) error {
 // It returns an error if one occours
 func (c *Client) AddFavoriteActivity(activityId uint64) error {
 	requestURL := fmt.Sprintf("user/-/activities/favorite/%i.json", activityId)
-	_, err := c.postData(requestURL)
+	_, err := c.postData(requestURL, map[string]string{})
 	if err != nil {
 		return err
 	}
