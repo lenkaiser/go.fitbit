@@ -1,7 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
+	"strconv"
 	"time"
 )
 
@@ -36,12 +39,12 @@ type MealFood struct {
 
 // GetMeals is a collection of all the meals of the given user
 type GetMeals struct {
-	Meals []*MealFoods `json:""mealFoods`
+	Meals []*MealFood `json:"mealFoods"`
 }
 
 // GetMeals gets all the meals of the given user
 // It returns an collection of Meal or an error if one occours
-func (c *Client) GetMeals() (GetMeals, error) {
+func (c *Client) GetMeals() (*GetMeals, error) {
 	//Build requestURL and GET data
 	responseBody, err := c.getData("user/-/meals.json")
 	if err != nil {
@@ -49,8 +52,8 @@ func (c *Client) GetMeals() (GetMeals, error) {
 	}
 
 	//Parse data
-	mealData := GetMeals{}
-	err = json.NewDecoder(responseBody).Decode(&mealData)
+	mealData := &GetMeals{}
+	err = json.NewDecoder(responseBody).Decode(mealData)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +119,7 @@ type GetFoods struct {
 
 // GetFoods gets all the foods for a specific date
 // It returns an collection of Food or an error if one occours
-func (c *Client) GetFoods(date time.Time) (GetFoods, error) {
+func (c *Client) GetFoods(date time.Time) (*GetFoods, error) {
 	//Build requestURL and GET data
 	requestURL := fmt.Sprintf("user/-/foods/log/date/%s.json", date.Format("2006-01-02"))
 	responseBody, err := c.getData(requestURL)
@@ -125,8 +128,8 @@ func (c *Client) GetFoods(date time.Time) (GetFoods, error) {
 	}
 
 	//Parse data
-	foodsData = GetFoods{}
-	err = json.NewDecoder(responseBody).Decode(&foodsData)
+	foodsData := &GetFoods{}
+	err = json.NewDecoder(responseBody).Decode(foodsData)
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +142,7 @@ type RecentFoods []*Meal
 
 // GetRecentFoods gets all the recent foods for the given user
 // It returns an collection of Food or an error if one occours
-func (c *Client) GetRecentFoods() (RecentFoods, error) {
+func (c *Client) GetRecentFoods() (*RecentFoods, error) {
 	//Build requestURL and GET data
 	responseBody, err := c.getData("user/-/foods/log/recent.json")
 	if err != nil {
@@ -147,7 +150,7 @@ func (c *Client) GetRecentFoods() (RecentFoods, error) {
 	}
 
 	//Parse data
-	recentFoodData := RecentFoods{}
+	recentFoodData := &RecentFoods{}
 	err = json.NewDecoder(responseBody).Decode(recentFoodData)
 	if err != nil {
 		return nil, err
@@ -160,7 +163,7 @@ type FrequentFoods []*Meal
 
 // GetFrequentFoods gets all the recent foods for the given user
 // It returns an collection of Food or an error if one occours
-func (c *Client) GetFrequentFoods() (FrequentFoods, error) {
+func (c *Client) GetFrequentFoods() (*FrequentFoods, error) {
 	//Build requestURL and GET data
 	responseBody, err := c.getData("user/-/foods/log/frequent.json")
 	if err != nil {
@@ -168,7 +171,7 @@ func (c *Client) GetFrequentFoods() (FrequentFoods, error) {
 	}
 
 	//Parse data
-	frequentFoodData := FrequentFoods{}
+	frequentFoodData := &FrequentFoods{}
 	err = json.NewDecoder(responseBody).Decode(frequentFoodData)
 	if err != nil {
 		return nil, err
@@ -199,7 +202,7 @@ type FavoriteFoods struct {
 
 // GetFavoriteFoods gets all the recent foods for the given user
 // It returns an collection of Food or an error if one occours
-func (c *Client) GetFavoriteFoods() (FavoriteFoods, error) {
+func (c *Client) GetFavoriteFoods() (*FavoriteFoods, error) {
 	//Build requestURL and GET data
 	responseBody, err := c.getData("user/-/foods/log/favorite.json")
 	if err != nil {
@@ -207,7 +210,7 @@ func (c *Client) GetFavoriteFoods() (FavoriteFoods, error) {
 	}
 
 	//Parse data
-	favoriteFoodData := FrequentFoods{}
+	favoriteFoodData := &FavoriteFoods{}
 	err = json.NewDecoder(responseBody).Decode(favoriteFoodData)
 	if err != nil {
 		return nil, err
@@ -216,34 +219,34 @@ func (c *Client) GetFavoriteFoods() (FavoriteFoods, error) {
 	return favoriteFoodData, nil
 }
 
-type LogFood *Food
+type LogFood Food
 
 // LogFood makes it possible to add food to the user's Fitbit account
 // It returns an error if one occours
-func (c *Client) LogFood(date time.Time, foodName, brandName string, foodId, mealTypeId, unitId, calories, nutrition uint64, amount float64, favorite bool) (LogFood, error) {
+func (c *Client) LogFood(date time.Time, foodName, brandName string, foodId, mealTypeId, unitId, calories, nutrition uint64, amount float64, favorite bool) (*LogFood, error) {
 	//Build dataArguments
 	dataArguments := map[string]string{
-		"mealTypeId": mealTypeId,
-		"unitId":     unitId,
-		"amount":     amount,
+		"mealTypeId": strconv.FormatUint(mealTypeId, 10),
+		"unitId":     strconv.FormatUint(unitId, 10),
+		"amount":     strconv.FormatFloat(amount, 'f', 2, 32),
 		"date":       date.Format("2006-01-02"),
-		"favorite":   favorite,
+		"favorite":   strconv.FormatBool(favorite),
 	}
 
-	if foodId == 0 || foodName.length == 0 {
+	if foodId == 0 || len(foodName) == 0 {
 		return nil, errors.New("missing parameters")
 	}
 	if foodId > 0 {
-		dataArguments["foodId"] = foodId
+		dataArguments["foodId"] = strconv.FormatUint(foodId, 10)
 	}
-	if foodName.length > 0 {
+	if len(foodName) > 0 {
 		dataArguments["foodName"] = foodName
 
 		//Set calories
-		dataArguments["calories"] = calories
+		dataArguments["calories"] = strconv.FormatUint(calories, 10)
 
 		//Set brandname
-		if brandName.length > 0 {
+		if len(brandName) > 0 {
 			dataArguments["brandName"] = brandName
 		}
 	}
@@ -255,8 +258,8 @@ func (c *Client) LogFood(date time.Time, foodName, brandName string, foodId, mea
 	}
 
 	//Parse data
-	logFoodData := LogFood{}
-	err = json.NewDecoder(responseBody).Decode(&logFoodData)
+	logFoodData := &LogFood{}
+	err = json.NewDecoder(responseBody).Decode(logFoodData)
 	if err != nil {
 		return nil, err
 	}
@@ -284,14 +287,14 @@ type SearchFood struct {
 
 // SearchFood makes it possible to search the user's food list with a query
 // It returns an collection of Food or an error if one occours
-func (c *Client) SearchFood(query string) (SearchFood, error) {
+func (c *Client) SearchFood(query string) (*SearchFood, error) {
 	//Build requestURL and GET data
 	requestURL := fmt.Sprintf("foods/search.json?query=%s", query)
 	responseBody, err := c.getData(requestURL)
 
 	//Parse data
-	searchFoodData := SearchFood{}
-	err = json.NewDecoder(responseBody).Decode(&searchFoodData)
+	searchFoodData := &SearchFood{}
+	err = json.NewDecoder(responseBody).Decode(searchFoodData)
 	if err != nil {
 		return nil, err
 	}

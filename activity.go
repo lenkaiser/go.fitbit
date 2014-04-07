@@ -191,7 +191,7 @@ func (c *Client) LogActivity(date time.Time, activityName, distanceUnit string, 
 	}
 
 	if distance > 0 {
-		dataArguments["distance"] = strconv.FormatFloat(distance, 'f', 2, 1) //TODO: Check if last parameter is correct (bitsize)
+		dataArguments["distance"] = strconv.FormatFloat(distance, 'f', 2, 32) //TODO: Check if last parameter is correct (bitsize)
 	}
 
 	_, ok := distanceUnitTypes[distanceUnit]

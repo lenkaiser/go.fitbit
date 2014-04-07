@@ -1,6 +1,9 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
+	"strconv"
 	"time"
 )
 
@@ -26,7 +29,7 @@ type GetBloodpressure struct {
 // GetBloodpressure gets the bloodpressure of the user for a specific date
 // It returns an collection of Bloodpressure or an error if one occours
 // Date has to be specific is following format: 2006-02-25
-func (c *Client) GetBloodpressure(date time.Time) (GetBloodpressure, error) {
+func (c *Client) GetBloodpressure(date time.Time) (*GetBloodpressure, error) {
 	//Build and GET requestURL
 	requestURL := fmt.Sprintf("user/-/bp/date/%s.json", date.Format("2006-01-02"))
 	responseBody, err := c.getData(requestURL)
@@ -35,8 +38,8 @@ func (c *Client) GetBloodpressure(date time.Time) (GetBloodpressure, error) {
 	}
 
 	//Parse data
-	bloodPressureData := GetBloodpressure{}
-	err = json.NewDecoder(responseBody).Decode(&bloodPressureData)
+	bloodPressureData := &GetBloodpressure{}
+	err = json.NewDecoder(responseBody).Decode(bloodPressureData)
 	if err != nil {
 		return nil, err
 	}
@@ -46,11 +49,11 @@ func (c *Client) GetBloodpressure(date time.Time) (GetBloodpressure, error) {
 
 // LogBloodpressure logs the bloodpresure of the given user
 // It returns an object Bloodpressure or an error if one occours
-func (c *Client) LogBloodpressure(date time.Time, systolic, diastolic uint64) (Bloodpressure, error) {
+func (c *Client) LogBloodpressure(date time.Time, systolic, diastolic uint64) (*Bloodpressure, error) {
 	//Build dataArguments
 	dataArguments := map[string]string{
-		"systolic":  systolic,
-		"diastolic": diastolic,
+		"systolic":  strconv.FormatUint(systolic, 10),
+		"diastolic": strconv.FormatUint(diastolic, 10),
 		"date":      date.Format("2006-01-02"),
 		"time":      date.Format("15:04"),
 	}
@@ -62,8 +65,8 @@ func (c *Client) LogBloodpressure(date time.Time, systolic, diastolic uint64) (B
 	}
 
 	//Parse data
-	bloodPressureData = Bloodpressure{}
-	err = json.NewDecoder(responseBody).Decode(&bloodPressureData)
+	bloodPressureData := &Bloodpressure{}
+	err = json.NewDecoder(responseBody).Decode(bloodPressureData)
 	if err != nil {
 		return nil, err
 	}

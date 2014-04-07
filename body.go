@@ -1,6 +1,9 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
+	"strconv"
 	"time"
 )
 
@@ -38,8 +41,8 @@ func (c *Client) GetBody(date time.Time) (*GetBody, error) {
 	}
 
 	//Parse data
-	bodyData = GetBody{}
-	err = json.NewDecoder(responseBody).Decode(&bodyData)
+	bodyData := &GetBody{}
+	err = json.NewDecoder(responseBody).Decode(bodyData)
 	if err != nil {
 		return nil, err
 	}
@@ -54,19 +57,19 @@ type LogBody struct {
 
 // LogBody adds all the body measurements for the given user
 // It returns an error if one occours
-func (c *Client) LogBody(date time.Time, bicep, calf, chest, fat, forearm, hips, neck, thigh, waist, weight float64) (LogBody, error) {
+func (c *Client) LogBody(date time.Time, bicep, calf, chest, fat, forearm, hips, neck, thigh, waist, weight float64) (*LogBody, error) {
 	//Build dataArguments
 	dataArguments := map[string]string{
-		"bicep":   bicep,
-		"calf":    calf,
-		"chest":   chest,
-		"fat":     fat,
-		"forearm": forearm,
-		"hips":    hips,
-		"neck":    neck,
-		"thigh":   thigh,
-		"waist":   waist,
-		"weight":  weight,
+		"bicep":   strconv.FormatFloat(bicep, 'f', 2, 32),
+		"calf":    strconv.FormatFloat(calf, 'f', 2, 32),
+		"chest":   strconv.FormatFloat(chest, 'f', 2, 32),
+		"fat":     strconv.FormatFloat(fat, 'f', 2, 32),
+		"forearm": strconv.FormatFloat(forearm, 'f', 2, 32),
+		"hips":    strconv.FormatFloat(hips, 'f', 2, 32),
+		"neck":    strconv.FormatFloat(neck, 'f', 2, 32),
+		"thigh":   strconv.FormatFloat(thigh, 'f', 2, 32),
+		"waist":   strconv.FormatFloat(waist, 'f', 2, 32),
+		"weight":  strconv.FormatFloat(weight, 'f', 2, 32),
 		"date":    date.Format("2006-01-02"),
 	}
 
@@ -77,8 +80,8 @@ func (c *Client) LogBody(date time.Time, bicep, calf, chest, fat, forearm, hips,
 	}
 
 	//Parse data
-	logBodyData = LogBody{}
-	err = json.NewDecoder(responseBody).Decode(&logBodyData)
+	logBodyData := &LogBody{}
+	err = json.NewDecoder(responseBody).Decode(logBodyData)
 	if err != nil {
 		return nil, err
 	}
@@ -102,10 +105,10 @@ type LogWeight struct {
 
 // LogWeight logs user's weight
 // It returns an object Weight or an error if one occours
-func (c *Client) LogWeight(date time.Time, weight float64) (LogWeight, error) {
+func (c *Client) LogWeight(date time.Time, weight float64) (*LogWeight, error) {
 	//Build dataArguments
 	dataArguments := map[string]string{
-		"weight": weight,
+		"weight": strconv.FormatFloat(weight, 'f', 2, 32),
 		"date":   date.Format("2006-01-02"),
 		"time":   date.Format("15:04:05"),
 	}
@@ -117,8 +120,8 @@ func (c *Client) LogWeight(date time.Time, weight float64) (LogWeight, error) {
 	}
 
 	//Parse data
-	weightingData = LogBody{}
-	err = json.NewDecoder(responseBody).Decode(&weightingData)
+	weightingData := &LogWeight{}
+	err = json.NewDecoder(responseBody).Decode(weightingData)
 	if err != nil {
 		return nil, err
 	}

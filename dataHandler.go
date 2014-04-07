@@ -61,14 +61,14 @@ func (c *Client) deleteData(requestURL string, dataArguments map[string]string) 
 
 // putData is used to perform basic connection checks and PUT data to the given requestURL
 // It returns the Body of the response or an error if one occours
-func (c *Client) putData(requestURL string, dataArguments map[string]string) (io.ReadCloser, error) {
+func (c *Client) putData(requestURL, body string, dataArguments map[string]string) (io.ReadCloser, error) {
 	//Check for OAuth consumer
 	if c.oc == nil {
 		return nil, errors.New("no consumer")
 	}
 
 	//Put data to URL
-	response, err := c.oc.Put(c.api.apiURL+requestURL, dataArguments, c.accessToken)
+	response, err := c.oc.Put(c.api.apiURL+requestURL, body, dataArguments, c.accessToken)
 	if err != nil {
 		return nil, err
 	}
