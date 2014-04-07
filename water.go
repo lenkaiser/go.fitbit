@@ -23,7 +23,7 @@ type Water struct {
 // It returns an collection of Water or an error if one occours
 func (c *Client) GetWater(date time.Time) (*Water, error) {
 	//Build and get request-URL
-	requestURL := fmt.Sprintf("user/-/log/water/date/%s.json", date.Format("2006-01-02"))
+	requestURL := fmt.Sprintf("user/-/foods/log/water/date/%s.json", date.Format("2006-01-02"))
 	responseBody, err := c.getData(requestURL)
 	if err != nil {
 		return nil, err
@@ -52,7 +52,7 @@ func (c *Client) LogWater(measurementType string, amount float64, date time.Time
 	}
 
 	//Check parameters
-	if amount > 0 {
+	if amount == 0 {
 		return nil, errors.New("missing paramters")
 	}
 

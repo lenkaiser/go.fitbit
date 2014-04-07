@@ -79,7 +79,10 @@ func (c *Client) LogBloodpressure(date time.Time, systolic, diastolic uint64) (*
 func (c *Client) DeleteBloodpressure(bloodpressureId uint64) error {
 	//Build and DELETE requestURL
 	requestURL := fmt.Sprintf("user/-/bp/%i.json", bloodpressureId)
-	responseBody, err := c.deleteData(requestURL, nil)
+	_, err := c.deleteData(requestURL, nil)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
