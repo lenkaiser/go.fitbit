@@ -39,7 +39,7 @@ type Distance struct {
 }
 
 // Summary holds a summary of all the activities of a given date
-type Summary struct {
+type ActivitySummary struct {
 	ActivityCalories     uint64      `json:"activityCalories"`
 	CaloriesBMR          uint64      `json:"caloriesBMR"`
 	CaloriesOut          uint64      `json:"caloresOut"`
@@ -56,9 +56,9 @@ type Summary struct {
 
 // Activities for a specific given date
 type Activities struct {
-	activities []*Activity `json:"activities"`
-	goals      *Goal       `json:"goals"`
-	summary    *Summary    `json:"summary"`
+	activities []*Activity      `json:"activities"`
+	goals      *Goal            `json:"goals"`
+	summary    *ActivitySummary `json:"summary"`
 }
 
 // GetActivity uses the activityId to get the details of this specific activity

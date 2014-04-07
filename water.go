@@ -8,15 +8,21 @@ import (
 	"time"
 )
 
+// WaterUnit is an object that contains one log of water consumption
 type WaterUnit struct {
 	Amount uint64 `json:"amount"`
 	LogID  uint64 `json:"logId"`
 }
 
+// WaterSummary is a summary of the requested water logs
+type WaterSummary struct {
+	Water uint64 `json:"water"`
+}
+
 // Water object contains all the data of the logged water
 type Water struct {
-	Summary *Summary     `json:"summary"`
-	Water   []*WaterUnit `json:"water"`
+	Summary *WaterSummary `json:"summary"`
+	Water   []*WaterUnit  `json:"water"`
 }
 
 // GetWater gets the amount of water taken on a specific date
