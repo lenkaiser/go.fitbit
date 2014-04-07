@@ -17,7 +17,7 @@ type SleepSummary struct {
 
 type MinuteData struct {
 	DateTime string `json:"dateTime"`
-	Value    uint64 `json:"value"`
+	Value    string `json:"value"`
 }
 
 // SleepUnit object contains all the data gather during one sleep session
