@@ -56,15 +56,34 @@ type ActivitySummary struct {
 
 // Activities for a specific given date
 type Activities struct {
-	activities []*Activity      `json:"activities"`
-	goals      *Goal            `json:"goals"`
-	summary    *ActivitySummary `json:"summary"`
+	Activities []*Activity      `json:"activities"`
+	Goals      *Goal            `json:"goals"`
+	Summary    *ActivitySummary `json:"summary"`
+}
+
+// GetActivity
+type GetActivity struct {
+	Activity *Activity `json:"activity"`
 }
 
 // GetActivity uses the activityId to get the details of this specific activity
 // It returns an object containing all the details or an error if one occours
-func (c *Client) GetActivity(activityId uint64) (*Activity, error) {
-	return nil, errors.New("not implemented yet")
+func (c *Client) GetActivity(activityId uint64) (*GetActivity, error) {
+	//Build and get request-URL
+	requestURL := fmt.Sprintf("user/-/activities/%d.json", activityId)
+	responseBody, err := c.getData(requestURL)
+	if err != nil {
+		return nil, err
+	}
+
+	//Parse data
+	activityData := &GetActivity{}
+	err = json.NewDecoder(responseBody).Decode(activityData)
+	if err != nil {
+		return nil, err
+	}
+
+	return activityData, nil
 }
 
 // BrowseActivites gets a collection of all the public and private activities of the user

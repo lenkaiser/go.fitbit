@@ -22,7 +22,7 @@ type MinuteData struct {
 
 // SleepUnit object contains all the data gather during one sleep session
 type SleepUnit struct {
-	IsMainSleep         uint64 `json:"isMainSleep"`
+	IsMainSleep         bool   `json:"isMainSleep"`
 	LogId               uint64 `json:"logId"`
 	Efficiency          uint64 `json:"efficiency"`
 	StartTime           string `json:"startTime"`
