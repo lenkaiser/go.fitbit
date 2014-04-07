@@ -99,7 +99,7 @@ type NutritionValues struct {
 type Food struct {
 	IsFavorite      bool             `json:"isFavorite"`
 	LogDate         string           `json:"logDate"`
-	LogId           uint64           `json:"logId"`
+	LogID           uint64           `json:"logId"`
 	LoggedFood      *Meal            `json:"loggedFood"`
 	NutritionValues *NutritionValues `json:"nutritionValues"`
 }
@@ -119,7 +119,7 @@ type GetFoods struct {
 
 // GetFoods gets all the foods for a specific date
 // It returns an collection of Food or an error if one occours
-func (c *Client) GetFoods(date time.Time) (*GetFoods, error) {
+func (c *Client) GetFoodLogs(date time.Time) (*GetFoods, error) {
 	//Build requestURL and GET data
 	requestURL := fmt.Sprintf("user/-/foods/log/date/%s.json", date.Format("2006-01-02"))
 	responseBody, err := c.getData(requestURL)
@@ -200,9 +200,11 @@ type FavoriteFoods struct {
 	NutritionValues    *NutritionValues `json:"nutritionValues"`
 }
 
+type FavoriteFoodsArray []*FavoriteFoods
+
 // GetFavoriteFoods gets all the recent foods for the given user
 // It returns an collection of Food or an error if one occours
-func (c *Client) GetFavoriteFoods() (*FavoriteFoods, error) {
+func (c *Client) GetFavoriteFoods() (*FavoriteFoodsArray, error) {
 	//Build requestURL and GET data
 	responseBody, err := c.getData("user/-/foods/log/favorite.json")
 	if err != nil {
@@ -210,7 +212,7 @@ func (c *Client) GetFavoriteFoods() (*FavoriteFoods, error) {
 	}
 
 	//Parse data
-	favoriteFoodData := &FavoriteFoods{}
+	favoriteFoodData := &FavoriteFoodsArray{}
 	err = json.NewDecoder(responseBody).Decode(favoriteFoodData)
 	if err != nil {
 		return nil, err
@@ -219,11 +221,13 @@ func (c *Client) GetFavoriteFoods() (*FavoriteFoods, error) {
 	return favoriteFoodData, nil
 }
 
-type LogFood Food
+type LogFood struct {
+	FoodLog *Food `json:"foodLog"`
+}
 
 // LogFood makes it possible to add food to the user's Fitbit account
 // It returns an error if one occours
-func (c *Client) LogFood(date time.Time, foodName, brandName string, foodId, mealTypeId, unitId, calories, nutrition uint64, amount float64, favorite bool) (*LogFood, error) {
+func (c *Client) LogFood(date time.Time, foodName, brandName string, foodId, mealTypeId, unitId, calories uint64, amount float64, favorite bool) (*LogFood, error) {
 	//Build dataArguments
 	dataArguments := map[string]string{
 		"mealTypeId": strconv.FormatUint(mealTypeId, 10),
@@ -233,13 +237,12 @@ func (c *Client) LogFood(date time.Time, foodName, brandName string, foodId, mea
 		"favorite":   strconv.FormatBool(favorite),
 	}
 
-	if foodId == 0 || len(foodName) == 0 {
+	if foodId == 0 && len(foodName) == 0 {
 		return nil, errors.New("missing parameters")
 	}
 	if foodId > 0 {
 		dataArguments["foodId"] = strconv.FormatUint(foodId, 10)
-	}
-	if len(foodName) > 0 {
+	} else {
 		dataArguments["foodName"] = foodName
 
 		//Set calories
@@ -271,7 +274,7 @@ func (c *Client) LogFood(date time.Time, foodName, brandName string, foodId, mea
 // It returns an error if one occours
 func (c *Client) DeleteFood(foodId uint64) error {
 	//Build requestURL and DELETE data
-	requestURL := fmt.Sprintf("usr/-/foods/log/%i.json", foodId)
+	requestURL := fmt.Sprintf("user/-/foods/log/%d.json", foodId)
 	_, err := c.deleteData(requestURL, nil)
 	if err != nil {
 		return err
@@ -306,7 +309,7 @@ func (c *Client) SearchFood(query string) (*SearchFood, error) {
 // It returns an error if one occours
 func (c *Client) AddFavoriteFood(foodId uint64) error {
 	//Build requestURL and POST data
-	requestURL := fmt.Sprintf("user/-/foods/log/favorite/%i.json", foodId)
+	requestURL := fmt.Sprintf("user/-/foods/log/favorite/%d.json", foodId)
 	_, err := c.postData(requestURL, nil)
 	if err != nil {
 		return err
@@ -319,7 +322,7 @@ func (c *Client) AddFavoriteFood(foodId uint64) error {
 // It returns an error if one occours
 func (c *Client) DeleteFavoriteFood(foodId uint64) error {
 	//Build requestURL and POST data
-	requestURL := fmt.Sprintf("user/-/foods/log/favorite/%i.json", foodId)
+	requestURL := fmt.Sprintf("user/-/foods/log/favorite/%d.json", foodId)
 	_, err := c.deleteData(requestURL, nil)
 	if err != nil {
 		return err

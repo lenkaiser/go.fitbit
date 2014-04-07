@@ -45,9 +45,13 @@ func (c *Client) GetWater(date time.Time) (*Water, error) {
 	return waterData, nil
 }
 
+type LogWater struct {
+	WaterLog *WaterUnit `json:"waterLog"`
+}
+
 // LogWater adds a certain amount of water taken on a specific date
 // It returns an error if one occours
-func (c *Client) LogWater(measurementType string, amount float64, date time.Time) (*Water, error) {
+func (c *Client) LogWater(measurementType string, amount float64, date time.Time) (*LogWater, error) {
 	//Supported unit types
 	measurementUnitTypes := map[string]string{"ml": "", "fl oz": "", "cup": ""}
 
@@ -75,7 +79,7 @@ func (c *Client) LogWater(measurementType string, amount float64, date time.Time
 	}
 
 	//Parse data
-	logWater := &Water{}
+	logWater := &LogWater{}
 	err = json.NewDecoder(responseBody).Decode(logWater)
 	if err != nil {
 		return nil, err
@@ -88,7 +92,7 @@ func (c *Client) LogWater(measurementType string, amount float64, date time.Time
 // It returns an error if one occours
 func (c *Client) DeleteWater(waterId uint64) error {
 	//Build requestURL and DELETE data
-	requestURL := fmt.Sprintf("usr/-/foods/log/water/%i.json", waterId)
+	requestURL := fmt.Sprintf("user/-/foods/log/water/%d.json", waterId)
 	_, err := c.deleteData(requestURL, nil)
 	if err != nil {
 		return err

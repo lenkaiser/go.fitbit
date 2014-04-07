@@ -94,7 +94,7 @@ func (c *Client) LogBody(date time.Time, bicep, calf, chest, fat, forearm, hips,
 type Weight struct {
 	Bmi    float64 `json:"bmi"`
 	Date   string  `json:"date"`
-	LogId  uint64  `json:"logId"`
+	LogID  uint64  `json:"logId"`
 	Time   string  `json:"time"`
 	Weight uint64  `json:"weight"`
 }

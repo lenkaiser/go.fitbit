@@ -23,7 +23,7 @@ type MinuteData struct {
 // SleepUnit object contains all the data gather during one sleep session
 type SleepUnit struct {
 	IsMainSleep         bool   `json:"isMainSleep"`
-	LogId               uint64 `json:"logId"`
+	LogID               uint64 `json:"logId"`
 	Efficiency          uint64 `json:"efficiency"`
 	StartTime           string `json:"startTime"`
 	Duration            uint64 `json:"duration"`
@@ -66,9 +66,14 @@ func (c *Client) GetSleep(date time.Time) (*Sleep, error) {
 	return sleepData, nil
 }
 
+// LogSleep is an object that returns the result of a sleep log
+type LogSleep struct {
+	Sleep *SleepUnit `json:"sleep"`
+}
+
 // LogSleep adds a record with minutes of sleep for a specific date
 // It returns an error if one occours
-func (c *Client) LogSleep(duration float64, date time.Time) (*Sleep, error) {
+func (c *Client) LogSleep(durationMilis uint64, date time.Time) (*LogSleep, error) {
 	//Build arguments map
 	dataArguments := map[string]string{
 		"startTime": date.Format("15:04"),
@@ -76,10 +81,10 @@ func (c *Client) LogSleep(duration float64, date time.Time) (*Sleep, error) {
 	}
 
 	//Check parameters
-	if duration == 0 {
+	if durationMilis == 0 {
 		return nil, errors.New("missing paramters")
 	} else {
-		dataArguments["duration"] = strconv.FormatFloat(duration, 'f', 2, 32)
+		dataArguments["duration"] = strconv.FormatUint(durationMilis, 10)
 	}
 
 	//Build an put request-URL
@@ -89,7 +94,7 @@ func (c *Client) LogSleep(duration float64, date time.Time) (*Sleep, error) {
 	}
 
 	//Parse data
-	logSleep := &Sleep{}
+	logSleep := &LogSleep{}
 	err = json.NewDecoder(responseBody).Decode(logSleep)
 	if err != nil {
 		return nil, err
@@ -102,7 +107,7 @@ func (c *Client) LogSleep(duration float64, date time.Time) (*Sleep, error) {
 // It returns an error if one occours
 func (c *Client) DeleteSleep(sleepId uint64) error {
 	//Build requestURL and DELETE data
-	requestURL := fmt.Sprintf("usr/-/sleep/%i.json", sleepId)
+	requestURL := fmt.Sprintf("user/-/sleep/%d.json", sleepId)
 	_, err := c.deleteData(requestURL, nil)
 	if err != nil {
 		return err

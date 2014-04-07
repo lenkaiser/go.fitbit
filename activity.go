@@ -18,7 +18,7 @@ type Activity struct {
 	Distance         float64 `json:"distance"`
 	HasStartTime     bool    `json:"hasStartTime"`
 	IsFavorite       bool    `json:"isFavorite"`
-	LogId            uint64  `json:"logId"`
+	LogID            uint64  `json:"logId"`
 	Name             string  `json:"name"`
 	StartTime        string  `json:"startTime"`
 	Steps            uint64  `json:"steps"`
@@ -180,33 +180,36 @@ func (c *Client) GetFavoriteActivities() (FavoriteActivities, error) {
 	return favoriteActivitiesData, nil
 }
 
+type LogActivity struct {
+	ActivityLog *Activity `json:"activityLog"`
+}
+
 // LogActivity makes it possible to write an activity to the user's Fitbit account
 // It returns an error if one occours
 // Date has to be specific is following format: 2006-02-25
-func (c *Client) LogActivity(date time.Time, activityName, distanceUnit string, activityId, duration, manualCalories uint64, distance float64) (*Activity, error) {
+func (c *Client) LogActivity(date time.Time, activityName, distanceUnit string, activityId, durationMilis, manualCalories uint64, distance float64) (*LogActivity, error) {
 	//Supported unit types
 	distanceUnitTypes := map[string]string{"Centimeter": "", "Foot": "", "Inch": "", "Kilometer": "", "Meter": "", "Mile": "", "Millimeter": "", "Steps": "", "Yards": ""}
 
 	//Build arguments map
 	dataArguments := map[string]string{
 		"startTime":      date.Format("15:04"),
-		"durationMillis": strconv.FormatUint(duration, 10),
+		"durationMillis": strconv.FormatUint(durationMilis, 10),
 		"date":           date.Format("2006-01-02"),
 	}
 
 	//Check parameters
-	if activityId == 0 || len(activityName) == 0 {
+	if activityId == 0 && len(activityName) == 0 {
 		return nil, errors.New("missing paramters")
+	}
+
+	if activityId > 0 {
+		//Set activityId
+		dataArguments["activityId"] = strconv.FormatUint(activityId, 10)
 	} else {
-		if activityId > 0 {
-			//Set activityId
-			dataArguments["activityId"] = strconv.FormatUint(activityId, 10)
-		}
-		if len(activityName) > 0 {
-			//Set activityName
-			dataArguments["activityName"] = activityName
-			dataArguments["manualCalories"] = strconv.FormatUint(manualCalories, 10)
-		}
+		//Set activityName
+		dataArguments["activityName"] = activityName
+		dataArguments["manualCalories"] = strconv.FormatUint(manualCalories, 10)
 	}
 
 	if distance > 0 {
@@ -225,7 +228,7 @@ func (c *Client) LogActivity(date time.Time, activityName, distanceUnit string, 
 	}
 
 	//Parse data
-	logActivity := &Activity{}
+	logActivity := &LogActivity{}
 	err = json.NewDecoder(responseBody).Decode(logActivity)
 	if err != nil {
 		return nil, err
@@ -237,7 +240,7 @@ func (c *Client) LogActivity(date time.Time, activityName, distanceUnit string, 
 // DeleteActivity makes it possible to remove an activity from the user's Fitbit account
 // It returns an error if one occours
 func (c *Client) DeleteActivity(activityId uint64) error {
-	requestURL := fmt.Sprintf("user/-/activities/%i.json", activityId)
+	requestURL := fmt.Sprintf("user/-/activities/%d.json", activityId)
 	_, err := c.deleteData(requestURL, map[string]string{})
 	if err != nil {
 		return err
@@ -249,7 +252,7 @@ func (c *Client) DeleteActivity(activityId uint64) error {
 // AddFavoriteActivity uses the activityId to mark a specific activity as a favorite one for the user
 // It returns an error if one occours
 func (c *Client) AddFavoriteActivity(activityId uint64) error {
-	requestURL := fmt.Sprintf("user/-/activities/favorite/%i.json", activityId)
+	requestURL := fmt.Sprintf("user/-/activities/favorite/%d.json", activityId)
 	_, err := c.postData(requestURL, map[string]string{})
 	if err != nil {
 		return err
@@ -261,7 +264,7 @@ func (c *Client) AddFavoriteActivity(activityId uint64) error {
 // DeleteFavoriteActivity uses the activityId to remove a specific activity from the users favorite activities list
 // It returns an error if one occours
 func (c *Client) DeleteFavoriteActivity(activityId uint64) error {
-	requestURL := fmt.Sprintf("user/-/activities/favorite/%i.json", activityId)
+	requestURL := fmt.Sprintf("user/-/activities/favorite/%d.json", activityId)
 	_, err := c.deleteData(requestURL, nil)
 	if err != nil {
 		return err

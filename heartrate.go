@@ -48,9 +48,13 @@ func (c *Client) GetHeartRate(date time.Time) (*Heartrate, error) {
 	return heartData, nil
 }
 
+type LogHeartRate struct {
+	HeartLog *Heart `json:"heartLog"`
+}
+
 // LogHeartRate adds a record with the heartrate to the user's Fitbit account
 // It returns an object HeartRate or an error if one occours
-func (c *Client) LogHeartRate(trackerName string, heartRate uint64, date time.Time) (*Heartrate, error) {
+func (c *Client) LogHeartRate(trackerName string, heartRate uint64, date time.Time) (*LogHeartRate, error) {
 	//Build arguments map
 	dataArguments := map[string]string{
 		"time": date.Format("15:04"),
@@ -74,7 +78,7 @@ func (c *Client) LogHeartRate(trackerName string, heartRate uint64, date time.Ti
 	}
 
 	//Parse data
-	logHeartRate := &Heartrate{}
+	logHeartRate := &LogHeartRate{}
 	err = json.NewDecoder(responseBody).Decode(logHeartRate)
 	if err != nil {
 		return nil, err
@@ -87,7 +91,7 @@ func (c *Client) LogHeartRate(trackerName string, heartRate uint64, date time.Ti
 // It returns an error if on occours
 func (c *Client) DeleteHeartRate(heartRateId uint64) error {
 	//Build requestURL and DELETE data
-	requestURL := fmt.Sprintf("usr/-/heart/log/%i.json", heartRateId)
+	requestURL := fmt.Sprintf("user/-/heart/%d.json", heartRateId)
 	_, err := c.deleteData(requestURL, nil)
 	if err != nil {
 		return err

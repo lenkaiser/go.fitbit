@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/mrjones/oauth"
 	"log"
+	"time"
 )
 
 const (
@@ -94,8 +95,8 @@ func (api *Fitbit) NewClient() (*Client, error) {
 	//TODO: Replace this with DB values
 	c.oc = oauthConsumer
 	c.accessToken = &oauth.AccessToken{
-		Token:  "cd7c9a14b886e46a3bb597a15ba32684",
-		Secret: "bf170c1442a005952c4747eb0146b149",
+		Token:  "b16a1aec41b52e53f48ae42220aa8dec",
+		Secret: "4df23d74c2e1a54409cbb0d420a044af",
 		AdditionalData: map[string]string{
 			"encoded_user_id": "2DXGXY",
 		},
@@ -191,4 +192,17 @@ func main() {
 		log.Fatal(err)
 	}
 	fmt.Println("New client initialised")
+
+	log.Printf("LOG WATER")
+	data, err := client.LogWater("ml", 200, time.Now())
+	if err != nil {
+		log.Printf("Log error: %s", err)
+	} else {
+		log.Printf("DELETE WATER (%d)", data.WaterLog.LogID)
+		err = client.DeleteWater(data.WaterLog.LogID)
+		if err != nil {
+			log.Printf("Delete error: %s", err)
+		}
+	}
+
 }

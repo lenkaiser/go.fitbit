@@ -16,8 +16,8 @@ type AverageBP struct {
 type Bloodpressure struct {
 	Diastolic uint64 `json:"diastolic"`
 	Systolic  uint64 `json:"systolic"`
-	LogId     uint64 `json:"logId"`
-	time      string `json:"time"`
+	LogID     uint64 `json:"logId"`
+	Time      string `json:"time"`
 }
 
 // Bloodpressure holds all the details for the user's BP
@@ -47,9 +47,13 @@ func (c *Client) GetBloodpressure(date time.Time) (*GetBloodpressure, error) {
 	return bloodPressureData, nil
 }
 
+type LogBloodpressure struct {
+	BpLog *Bloodpressure `json:"bpLog"`
+}
+
 // LogBloodpressure logs the bloodpresure of the given user
 // It returns an object Bloodpressure or an error if one occours
-func (c *Client) LogBloodpressure(date time.Time, systolic, diastolic uint64) (*Bloodpressure, error) {
+func (c *Client) LogBloodpressure(date time.Time, systolic, diastolic uint64) (*LogBloodpressure, error) {
 	//Build dataArguments
 	dataArguments := map[string]string{
 		"systolic":  strconv.FormatUint(systolic, 10),
@@ -65,7 +69,7 @@ func (c *Client) LogBloodpressure(date time.Time, systolic, diastolic uint64) (*
 	}
 
 	//Parse data
-	bloodPressureData := &Bloodpressure{}
+	bloodPressureData := &LogBloodpressure{}
 	err = json.NewDecoder(responseBody).Decode(bloodPressureData)
 	if err != nil {
 		return nil, err
@@ -78,7 +82,7 @@ func (c *Client) LogBloodpressure(date time.Time, systolic, diastolic uint64) (*
 // It returns an error if one occours
 func (c *Client) DeleteBloodpressure(bloodpressureId uint64) error {
 	//Build and DELETE requestURL
-	requestURL := fmt.Sprintf("user/-/bp/%i.json", bloodpressureId)
+	requestURL := fmt.Sprintf("user/-/bp/%d.json", bloodpressureId)
 	_, err := c.deleteData(requestURL, nil)
 	if err != nil {
 		return err
