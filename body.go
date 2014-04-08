@@ -55,9 +55,29 @@ type LogBody struct {
 	Body *Body `json:"body"`
 }
 
+// GetBodyMeasurements gets all the body measurements for the given user
+// It returns an error if one occours
+func (c *Client) GetBodyMeasurements(date time.Time) (*LogBody, error) {
+	//Build and get request-URL
+	requestURL := fmt.Sprintf("user/-/body/date/%s.json", date.Format("2006-01-02"))
+	responseBody, err := c.getData(requestURL)
+	if err != nil {
+		return nil, err
+	}
+
+	//Parse data
+	bodyData := &LogBody{}
+	err = json.NewDecoder(responseBody).Decode(bodyData)
+	if err != nil {
+		return nil, err
+	}
+
+	return bodyData, nil
+}
+
 // LogBody adds all the body measurements for the given user
 // It returns an error if one occours
-func (c *Client) LogBody(date time.Time, bicep, calf, chest, fat, forearm, hips, neck, thigh, waist, weight float64) (*LogBody, error) {
+func (c *Client) LogBodyMeasurements(date time.Time, bicep, calf, chest, fat, forearm, hips, neck, thigh, waist, weight float64) (*LogBody, error) {
 	//Build dataArguments
 	dataArguments := map[string]string{
 		"bicep":   strconv.FormatFloat(bicep, 'f', 2, 32),
@@ -103,9 +123,29 @@ type LogWeight struct {
 	WeightLog *Weight `json:"weightLog"`
 }
 
+// GetBodyWeight gets the body weight for the given user on a specific date
+// It returns an error if one occours
+func (c *Client) GetBodyWeight(date time.Time) (*LogWeight, error) {
+	//Build and get request-URL
+	requestURL := fmt.Sprintf("user/-/body/log/weight/date/%s.json", date.Format("2006-01-02"))
+	responseBody, err := c.getData(requestURL)
+	if err != nil {
+		return nil, err
+	}
+
+	//Parse data
+	bodyData := &LogWeight{}
+	err = json.NewDecoder(responseBody).Decode(bodyData)
+	if err != nil {
+		return nil, err
+	}
+
+	return bodyData, nil
+}
+
 // LogWeight logs user's weight
 // It returns an object Weight or an error if one occours
-func (c *Client) LogWeight(date time.Time, weight float64) (*LogWeight, error) {
+func (c *Client) LogBodyWeight(date time.Time, weight float64) (*LogWeight, error) {
 	//Build dataArguments
 	dataArguments := map[string]string{
 		"weight": strconv.FormatFloat(weight, 'f', 2, 32),
@@ -121,6 +161,70 @@ func (c *Client) LogWeight(date time.Time, weight float64) (*LogWeight, error) {
 
 	//Parse data
 	weightingData := &LogWeight{}
+	err = json.NewDecoder(responseBody).Decode(weightingData)
+	if err != nil {
+		return nil, err
+	}
+
+	return weightingData, nil
+}
+
+// Weighting contains the details of the user's weight
+type Fat struct {
+	Date  float64 `json:"date"`
+	Fat   string  `json:"fat"`
+	LogID uint64  `json:"logId"`
+	Time  string  `json:"time"`
+}
+
+// GetFat struct that contains all the measurements of body fat
+type GetFat struct {
+	GetFat []*Fat `json:"fat"`
+}
+
+// LogFat is a object that is returned by the server when a fat measurement is logged
+type LogFat struct {
+	FatLog *Fat `json:"fatLog"`
+}
+
+// GetBodyFat gets the body fat measurements for the given user on a specific date
+// It returns an error if one occours
+func (c *Client) GetBodyFat(date time.Time) (*GetFat, error) {
+	//Build and get request-URL
+	requestURL := fmt.Sprintf("user/-/body/log/fat/date/%s.json", date.Format("2006-01-02"))
+	responseBody, err := c.getData(requestURL)
+	if err != nil {
+		return nil, err
+	}
+
+	//Parse data
+	bodyData := &GetFat{}
+	err = json.NewDecoder(responseBody).Decode(bodyData)
+	if err != nil {
+		return nil, err
+	}
+
+	return bodyData, nil
+}
+
+// LogWeight logs user's weight
+// It returns an object Weight or an error if one occours
+func (c *Client) LogBodyFat(date time.Time, fat float64) (*LogFat, error) {
+	//Build dataArguments
+	dataArguments := map[string]string{
+		"fat":  strconv.FormatFloat(fat, 'f', 2, 32),
+		"date": date.Format("2006-01-02"),
+		"time": date.Format("15:04:05"),
+	}
+
+	//Buid and POST requestURL
+	responseBody, err := c.postData("user/-/body/log/fat.json", dataArguments)
+	if err != nil {
+		return nil, err
+	}
+
+	//Parse data
+	weightingData := &LogFat{}
 	err = json.NewDecoder(responseBody).Decode(weightingData)
 	if err != nil {
 		return nil, err
