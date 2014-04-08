@@ -39,6 +39,10 @@ func main() {
 ```
 
 # Changelog
+- Version 0.4: 08 April 2014
+ - Added support for Body, Alarms, Device, Heartrate, Glucose, Water, Sleep
+ - Tested 75% of the implemented functions
+ - Minor bug fixes (compiler issues, wrong URLs, etc.)
 - Version 0.3: 11 March 2014
  - Added support for activities
 - Version 0.2: 11 March 2014
