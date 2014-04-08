@@ -169,6 +169,19 @@ func (c *Client) LogBodyWeight(date time.Time, weight float64) (*LogWeight, erro
 	return weightingData, nil
 }
 
+// DeleteBodyWeight removes an body weight measurement
+// It returns an error if on occours
+func (c *Client) DeleteBodyWeight(weightID uint64) error {
+	//Build requestURL and DELETE data
+	requestURL := fmt.Sprintf("user/-/body/log/weight/%d.json", weightID)
+	_, err := c.deleteData(requestURL, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Weighting contains the details of the user's weight
 type Fat struct {
 	Date  float64 `json:"date"`
@@ -231,4 +244,17 @@ func (c *Client) LogBodyFat(date time.Time, fat float64) (*LogFat, error) {
 	}
 
 	return weightingData, nil
+}
+
+// DeleteBodyFat removes an body fat measurement
+// It returns an error if on occours
+func (c *Client) DeleteBodyFat(fatID uint64) error {
+	//Build requestURL and DELETE data
+	requestURL := fmt.Sprintf("user/-/body/log/fat/%d.json", fatID)
+	_, err := c.deleteData(requestURL, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
