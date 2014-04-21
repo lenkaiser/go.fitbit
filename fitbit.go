@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/mrjones/oauth"
 	"log"
-	"time"
 )
 
 const (
@@ -193,16 +192,35 @@ func main() {
 	}
 	fmt.Println("New client initialised")
 
-	log.Printf("LOG WATER")
-	data, err := client.LogWater("ml", 200, time.Now())
-	if err != nil {
-		log.Printf("Log error: %s", err)
-	} else {
-		log.Printf("DELETE WATER (%d)", data.WaterLog.LogID)
-		err = client.DeleteWater(data.WaterLog.LogID)
-		if err != nil {
-			log.Printf("Delete error: %s", err)
-		}
-	}
+	// log.Printf("LOG BODY MEASUREMENTS")
+	// _, err = client.LogBodyMeasurements(time.Time, bicep, calf, chest, fat, forearm, hips, neck, thigh, waist, weight)
+	// if err != nil {
+	// 	log.Printf("measurement error: %s", err)
+	// }
 
+	// log.Printf("LOG BODY WEIGHT")
+	// weightData, err := client.LogBodyWeight(time.Now(), 64)
+	// if err != nil {
+	// 	log.Printf("weight error: %s", err)
+	// } else {
+	// 	log.Printf("DELETE BODY WEIGHT")
+
+	// 	err = client.DeleteBodyWeight(weightData.WeightLog.LogID)
+	// 	if err != nil {
+	// 		log.Printf("delete weight: %s", err)
+	// 	}
+	// }
+
+	// log.Printf("LOG BODY FAT")
+	// fatData, err := client.LogBodyFat(time.Now(), 14)
+	// if err != nil {
+	// 	log.Printf("fat error: %s", err)
+	// } else {
+	// 	log.Printf("DELETE BODY WEIGHT")
+
+	// 	err = client.DeleteBodyFat(fatData.FatLog.LogID)
+	// 	if err != nil {
+	// 		log.Printf("delete fat: %s", err)
+	// 	}
+	// }
 }

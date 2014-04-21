@@ -184,8 +184,9 @@ func (c *Client) DeleteBodyWeight(weightID uint64) error {
 
 // Weighting contains the details of the user's weight
 type Fat struct {
-	Date  float64 `json:"date"`
-	Fat   string  `json:"fat"`
+	BMI   float64 `json:"bmi"`
+	Date  string  `json:"date"`
+	Fat   float64 `json:"fat"`
 	LogID uint64  `json:"logId"`
 	Time  string  `json:"time"`
 }

@@ -61,59 +61,58 @@ func (c *Client) AddAlarm(date time.Time, enabled, recurring bool, weekDays []st
 	 * When this method is called the server returns a 500 Internal server error
 	 * The method is for the time begin unavailable
 	 */
-	return nil, errors.New("not implemented yet")
+	// return nil, errors.New("not implemented yet")
 
-	/*
-		//Build arguments map
-		dataArguments := map[string]string{
-			"time":      date.Format("15:04-0700"),
-			"enabled":   strconv.FormatBool(enabled),
-			"recurring": strconv.FormatBool(recurring),
-			"vibe":      "DEFAULT", //Only value for now
-		}
+	//Build arguments map
+	dataArguments := map[string]string{
+		"time":      date.Format("15:04-0700"),
+		"enabled":   strconv.FormatBool(enabled),
+		"recurring": strconv.FormatBool(recurring),
+		"vibe":      "DEFAULT", //Only value for now
+	}
 
-		//Check for label
-		if len(label) > 0 {
-			dataArguments["label"] = label
-		}
+	//Check for label
+	if len(label) > 0 {
+		dataArguments["label"] = label
+	}
 
-		//Check for snooze length
-		if snoozeLength > 0 {
-			dataArguments["snoozeLength"] = strconv.FormatUint(snoozeLength, 10)
-		}
+	//Check for snooze length
+	if snoozeLength > 0 {
+		dataArguments["snoozeLength"] = strconv.FormatUint(snoozeLength, 10)
+	}
 
-		//Check for snooze count
-		if snoozeCount > 0 {
-			dataArguments["snoozeCount"] = strconv.FormatUint(snoozeCount, 10)
-		}
+	//Check for snooze count
+	if snoozeCount > 0 {
+		dataArguments["snoozeCount"] = strconv.FormatUint(snoozeCount, 10)
+	}
 
-		splitWeekdays := ""
-		if len(weekDays) > 0 {
-			for i, day := range weekDays {
-				if i > 0 {
-					splitWeekdays += ","
-				}
-				splitWeekdays += day
+	splitWeekdays := ""
+	if len(weekDays) > 0 {
+		for i, day := range weekDays {
+			if i > 0 {
+				splitWeekdays += ","
 			}
+			splitWeekdays += day
 		}
-		dataArguments["weekDays"] = "MONDAY"
+	}
+	dataArguments["weekDays"] = "MONDAY"
 
-		//Build an put request-URL
-		requestURL := fmt.Sprintf("devices/tracker/%d/alarms.json", deviceID)
-		responseBody, err := c.postData(requestURL, dataArguments)
-		if err != nil {
-			return nil, err
-		}
+	//Build an put request-URL
+	requestURL := fmt.Sprintf("user/-/devices/tracker/%d/alarms.json", deviceID)
+	responseBody, err := c.postData(requestURL, dataArguments)
+	if err != nil {
+		return nil, err
+	}
 
-		//Parse data
-		addAlarm := &AddAlarm{}
-		err = json.NewDecoder(responseBody).Decode(addAlarm)
-		if err != nil {
-			return nil, err
-		}
+	//Parse data
+	addAlarm := &AddAlarm{}
+	err = json.NewDecoder(responseBody).Decode(addAlarm)
+	if err != nil {
+		return nil, err
+	}
 
-		return addAlarm, nil
-	*/
+	return addAlarm, nil
+
 }
 
 // UpdateAlarm is used to edit/update an existing alarm
