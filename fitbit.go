@@ -1,10 +1,9 @@
-package main
+package fitbit
 
 import (
 	"errors"
 	"fmt"
 	"github.com/mrjones/oauth"
-	"log"
 )
 
 const (
@@ -169,58 +168,3 @@ func (c *Client) setUserID(userID string) error {
 	return nil
 }
 
-//Test method
-
-func main() {
-	//Init config
-	config := &Config{
-		false, //Debug
-		false, //Disable SSL
-	}
-
-	//Initialise FitbitAPI
-	fapi, err := NewAPI("761d7f0836484d81999bfc1b3bc9c3a0", "b47420b3554642599267b080ea7e2759", config)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println("FitbitAPI initialised")
-
-	//Add client
-	client, err := fapi.NewClient()
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println("New client initialised")
-
-	// log.Printf("LOG BODY MEASUREMENTS")
-	// _, err = client.LogBodyMeasurements(time.Time, bicep, calf, chest, fat, forearm, hips, neck, thigh, waist, weight)
-	// if err != nil {
-	// 	log.Printf("measurement error: %s", err)
-	// }
-
-	// log.Printf("LOG BODY WEIGHT")
-	// weightData, err := client.LogBodyWeight(time.Now(), 64)
-	// if err != nil {
-	// 	log.Printf("weight error: %s", err)
-	// } else {
-	// 	log.Printf("DELETE BODY WEIGHT")
-
-	// 	err = client.DeleteBodyWeight(weightData.WeightLog.LogID)
-	// 	if err != nil {
-	// 		log.Printf("delete weight: %s", err)
-	// 	}
-	// }
-
-	// log.Printf("LOG BODY FAT")
-	// fatData, err := client.LogBodyFat(time.Now(), 14)
-	// if err != nil {
-	// 	log.Printf("fat error: %s", err)
-	// } else {
-	// 	log.Printf("DELETE BODY WEIGHT")
-
-	// 	err = client.DeleteBodyFat(fatData.FatLog.LogID)
-	// 	if err != nil {
-	// 		log.Printf("delete fat: %s", err)
-	// 	}
-	// }
-}
