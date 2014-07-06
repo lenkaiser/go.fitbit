@@ -5,11 +5,10 @@ import (
     "log"
     "fmt"
     "os"
-    "github.com/jgoulah/go.fitbit"
+    ".." // local fitbit api
 )
 //Test method
 
-/*func main() {*/
 func TestMain(*testing.T) {
 	//Init config
 	config := &fitbit.Config{
@@ -18,7 +17,12 @@ func TestMain(*testing.T) {
 	}
 
 	//Initialise FitbitAPI
-    fapi, err := fitbit.NewAPI("761d7f0836484d81999bfc1b3bc9c3a0", "b47420b3554642599267b080ea7e2759", config)
+    client_key    := os.Getenv("FITBIT_CLIENT_KEY")
+    client_secret := os.Getenv("FITBIT_CLIENT_SECRET")
+    if ((client_key == "") || (client_secret == "")) {
+        log.Fatal("Please export FITBIT_CLIENT_KEY and FITBIT_CLIENT_SECRET")
+    }
+    fapi, err := fitbit.NewAPI(client_key, client_secret, config)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -32,12 +36,14 @@ func TestMain(*testing.T) {
 	fmt.Println("New client initialised")
 
     profile,err := client.GetProfile()
+    /*activities,err := client.GetRecentActivities()*/
 
     if err != nil {
         fmt.Println(err)
         os.Exit(1)
     }
 
+    /*fmt.Printf("%#v\n", activities)*/
     fmt.Printf("name: %#v\n", profile.User.FullName)
 
 	// log.Printf("LOG BODY MEASUREMENTS")
