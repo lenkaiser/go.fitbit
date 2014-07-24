@@ -1,10 +1,13 @@
-package main
+package fitbit
 
 import (
 	"errors"
 	"fmt"
 	"github.com/mrjones/oauth"
-	"log"
+    "log"
+    "io/ioutil"
+    "os"
+    "strings"
 )
 
 const (
@@ -90,39 +93,48 @@ func (api *Fitbit) NewClient() (*Client, error) {
 	//Set OAuth consumer to debug
 	oauthConsumer.Debug(api.config.Debug)
 
-	//Add to client
-	//TODO: Replace this with DB values
-	c.oc = oauthConsumer
-	c.accessToken = &oauth.AccessToken{
-		Token:  "b16a1aec41b52e53f48ae42220aa8dec",
-		Secret: "4df23d74c2e1a54409cbb0d420a044af",
-		AdditionalData: map[string]string{
-			"encoded_user_id": "2DXGXY",
-		},
-	}
+    //Add to client
+    c.oc = oauthConsumer
 
-	// //Get request tokenURL
-	// requestToken, url, err := oauthConsumer.GetRequestTokenAndUrl("oob")
-	// if err != nil {
-	// 	return nil, err
-	// }
+    var oauth_creds_file string = fmt.Sprintf("%s/%s", os.Getenv("HOME"), ".fitbit-oauth")
+    if _, err := os.Stat(oauth_creds_file); err == nil {
+        contents,_ := ioutil.ReadFile(oauth_creds_file)
+        keys := strings.Split(string(contents), "\n");
+        c.accessToken = &oauth.AccessToken{
+            Token:  keys[0],
+            Secret: keys[1],
+        }
+    } else {
 
-	// fmt.Println("(1) Go to: " + url)
-	// fmt.Println("(2) Enter the verification code: ")
+        // //Get request tokenURL
+        requestToken, url, err := oauthConsumer.GetRequestTokenAndUrl("oob")
+        if err != nil {
+            return nil, err
+        }
 
-	// verificationCode := ""
-	// fmt.Scanln(&verificationCode)
+        fmt.Println("(1) Go to: " + url)
+        fmt.Println("(2) Enter the verification code: ")
 
-	// accessToken, err := oauthConsumer.AuthorizeToken(requestToken, verificationCode)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// c.accessToken = accessToken
-	// c.userID = c.accessToken.AdditionalData["encoded_user_id"]
+        verificationCode := ""
+        fmt.Scanln(&verificationCode)
 
-	// log.Printf("accessToken >> %s\n", accessToken.Token)
-	// log.Printf("accessSecret >> %s\n", accessToken.Secret)
-	// log.Printf("userID >> %s\n", c.userID)
+        accessToken, err := oauthConsumer.AuthorizeToken(requestToken, verificationCode)
+        if err != nil {
+            return nil, err
+        }
+        c.accessToken = accessToken
+
+        log.Printf("accessToken >> %s\n", accessToken.Token)
+        log.Printf("accessSecret >> %s\n", accessToken.Secret)
+
+        contents := fmt.Sprintf("%s\n%s", accessToken.Token, accessToken.Secret);
+        ioutil.WriteFile(oauth_creds_file, []byte(contents), 0x777)
+
+        c.accessToken = &oauth.AccessToken{
+            Token:  accessToken.Token,
+            Secret: accessToken.Secret,
+        }
+    }
 
 	return c, nil
 }
@@ -169,58 +181,3 @@ func (c *Client) setUserID(userID string) error {
 	return nil
 }
 
-//Test method
-
-func main() {
-	//Init config
-	config := &Config{
-		false, //Debug
-		false, //Disable SSL
-	}
-
-	//Initialise FitbitAPI
-	fapi, err := NewAPI("761d7f0836484d81999bfc1b3bc9c3a0", "b47420b3554642599267b080ea7e2759", config)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println("FitbitAPI initialised")
-
-	//Add client
-	client, err := fapi.NewClient()
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println("New client initialised")
-
-	// log.Printf("LOG BODY MEASUREMENTS")
-	// _, err = client.LogBodyMeasurements(time.Time, bicep, calf, chest, fat, forearm, hips, neck, thigh, waist, weight)
-	// if err != nil {
-	// 	log.Printf("measurement error: %s", err)
-	// }
-
-	// log.Printf("LOG BODY WEIGHT")
-	// weightData, err := client.LogBodyWeight(time.Now(), 64)
-	// if err != nil {
-	// 	log.Printf("weight error: %s", err)
-	// } else {
-	// 	log.Printf("DELETE BODY WEIGHT")
-
-	// 	err = client.DeleteBodyWeight(weightData.WeightLog.LogID)
-	// 	if err != nil {
-	// 		log.Printf("delete weight: %s", err)
-	// 	}
-	// }
-
-	// log.Printf("LOG BODY FAT")
-	// fatData, err := client.LogBodyFat(time.Now(), 14)
-	// if err != nil {
-	// 	log.Printf("fat error: %s", err)
-	// } else {
-	// 	log.Printf("DELETE BODY WEIGHT")
-
-	// 	err = client.DeleteBodyFat(fatData.FatLog.LogID)
-	// 	if err != nil {
-	// 		log.Printf("delete fat: %s", err)
-	// 	}
-	// }
-}
