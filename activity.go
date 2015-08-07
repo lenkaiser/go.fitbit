@@ -42,7 +42,7 @@ type Distance struct {
 type ActivitySummary struct {
 	ActivityCalories     uint64      `json:"activityCalories"`
 	CaloriesBMR          uint64      `json:"caloriesBMR"`
-	CaloriesOut          uint64      `json:"caloresOut"`
+	CaloriesOut          uint64      `json:"caloriesOut"`
 	Distances            []*Distance `json:"distances"`
 	Elevation            float64     `json:"elevation"`
 	FairlyActiveMinutes  uint64      `json:"fairlyActiveMinutes"`
