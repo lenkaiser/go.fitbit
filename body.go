@@ -112,11 +112,12 @@ func (c *Client) LogBodyMeasurements(date time.Time, bicep, calf, chest, fat, fo
 
 // Weighting contains the details of the user's weight
 type Weight struct {
-	Bmi    float64 `json:"bmi"`
-	Date   string  `json:"date"`
-	LogID  uint64  `json:"logId"`
-	Time   string  `json:"time"`
-	Weight uint64  `json:"weight"`
+	Bmi     float64 `json:"bmi"`
+	Date    string  `json:"date"`
+	LogID   uint64  `json:"logId"`
+	Time    string  `json:"time"`
+	Weight  float64 `json:"weight"`
+	BodyFat float64 `json:"fat"`
 }
 
 type LogWeight struct {
